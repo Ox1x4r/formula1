@@ -1,0 +1,21 @@
+#!/bin/bash
+
+# Run blockMesh
+blockMesh
+
+# Run snappyHexMesh
+snappyHexMesh -overwrite
+
+# Run decomposePar
+decomposePar
+
+# Run simpleFoam in parallel with 6 processors
+mpirun -np 6 simpleFoam -parallel
+
+# Reconstruct the parallel solution
+reconstructPar
+
+# Create a placeholder file to indicate completion
+touch results.foam
+
+echo "Simulation complete."
