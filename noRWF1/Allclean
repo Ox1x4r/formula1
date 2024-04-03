@@ -1,0 +1,45 @@
+#!/bin/bash
+
+# Delete processor0 - processor5 directories
+for i in {0..5}
+do
+    if [ -d "processor$i" ]
+    then
+        rm -rf "processor$i"
+        echo "Deleted processor$i directory"
+    fi
+done
+
+# Delete results.foam file
+if [ -f "results.foam" ]
+then
+    rm -f "results.foam"
+    echo "Deleted results.foam file"
+fi
+
+# Delete polyMesh folder inside constant directory
+if [ -d "constant/polyMesh" ]
+then
+    rm -rf "constant/polyMesh"
+    echo "Deleted polyMesh folder inside constant directory"
+fi
+
+# Delete coefficient.dat file inside postProcessing/forceCoeffs1/0
+if [ -f "postProcessing/forceCoeffs1/0/coefficient.dat" ]
+then
+    rm -f "postProcessing/forceCoeffs1/0/coefficient.dat"
+    echo "Deleted coefficient.dat file inside postProcessing/forceCoeffs1/0"
+fi
+
+# Delete time step output folders from 50 to 500 (each folder going up in 50s)
+for ((i = 50; i <= 500; i+=50))
+do
+    folder="$i"
+    if [ -d "$folder" ]
+    then
+        rm -rf "$folder"
+        echo "Deleted time step output folder $folder"
+    fi
+done
+
+echo "All clean-up tasks completed"
