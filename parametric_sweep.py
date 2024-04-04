@@ -20,23 +20,35 @@ def extract_lift_drag(case_dir):
 
     # Extracting time, lift, and drag columns from the data
     time = data[:, 0]
-    lift = data[:, 4]
-    drag = data[:, 1]
+    lift_coef = data[:, 4]
+    drag_coef = data[:, 1]
 
     # Extracting data points at every 1 time step until 500
     indices = np.arange(0, 500, 1)
     time_selected = time[indices]
-    lift_selected = lift[indices]
-    drag_selected = drag[indices]
+    lift_selected = lift_coef[indices]
+    drag_selected = drag_coef[indices]
 
-    return time_selected, lift_selected, drag_selected
+    # Extracting air density, velocity, and reference area
+    with open(file_path, 'r') as file:
+        lines = file.readlines()
+    air_density = float(lines[7].split(':')[1].split()[0])
+    velocity_line = [line for line in lines if 'magUInf' in line][0]
+    velocity = float(velocity_line.split(':')[1].split()[0])
+    reference_area = float(lines[8].split(':')[1].split()[0])
+
+    # Convert coefficients to forces
+    lift_force = 0.5 * air_density * velocity**2 * reference_area * lift_selected
+    drag_force = 0.5 * air_density * velocity**2 * reference_area * drag_selected
+
+    return time_selected, lift_force, drag_force
 
 def plot_lift_drag(time, lift, drag, case_name):
-    plt.plot(time, lift, label='Lift')
-    plt.plot(time, drag, label='Drag')
+    plt.plot(time, lift, label='Lift Force')
+    plt.plot(time, drag, label='Drag Force')
     plt.xlabel('Time')
-    plt.ylabel('Coefficient')
-    plt.title(f'Lift and Drag Coefficients for {case_name}')
+    plt.ylabel('Force (N)')
+    plt.title(f'Lift and Drag Forces for {case_name}')
     plt.legend()
     plt.grid(True)
     plt.savefig(os.path.join(case_name, f'lift_drag_plot_{case_name}.png'))  # Save plot
