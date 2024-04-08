@@ -57,35 +57,54 @@ class DataExtractor:
 
         return time_selected, lift_force, drag_force, pitch_moment_force
 
+    @staticmethod
+    def calculate_downforce_and_efficiency(lift, drag):
+        downforce = -lift  # Negative lift represents downforce
+        efficiency = lift / drag
+        return downforce, efficiency
+
 class GraphPlotter:
     @staticmethod
-    def plot_lift_drag(time, lift, drag, moment, case_name):
-        fig, ax1 = plt.subplots()
+    def plot_lift_drag_moment(time, lift, drag, moment, case_name):
+        fig, ax = plt.subplots(figsize=(6, 5))
 
-        ax1.set_xlabel('Time')
-        ax1.set_ylabel('Force (N)')
+        ax.set_xlabel('Time')
+        ax.set_ylabel('Force (N)')
 
         # Plot lift force with blue color
-        ax1.plot(time, lift, label='Lift Force', color='blue')
+        ax.plot(time, lift, label='Lift Force', color='blue')
 
         # Plot drag force with red color
-        ax1.plot(time, drag, label='Drag Force', color='red')
+        ax.plot(time, drag, label='Drag Force', color='red')
 
         # Plot moment with green dotted line
-        ax2 = ax1.twinx()  
-        ax2.set_ylabel('Moment (Nm)', color='green')  
-        ax2.plot(time, moment, label='Pitch Moment', linestyle='--', color='green')
+        ax.plot(time, moment, label='Pitch Moment', linestyle='--', color='green')
 
-        plt.title(f'Lift, Drag, and Pitch Moment Forces for {case_name}')
-        fig.tight_layout()  
-
-        # Add legend at bottom right corner
-        lines, labels = ax1.get_legend_handles_labels()
-        lines2, labels2 = ax2.get_legend_handles_labels()
-        ax1.legend(lines + lines2, labels + labels2, loc='lower right')
+        ax.set_title(f'Lift, Drag, and Pitch Moment Forces for {case_name}')
+        ax.legend(loc='lower right')  # Change legend position
 
         plt.grid(True)
         plt.savefig(os.path.join(case_name, f'lift_drag_moment_plot_{case_name}.png'))  # Save plot
+        plt.close()
+
+    @staticmethod
+    def plot_downforce_efficiency(time, downforce, efficiency, case_name):
+        fig, ax = plt.subplots(figsize=(6, 5))
+
+        ax.set_xlabel('Time')
+        ax.set_ylabel('Force (N)')
+
+        # Plot downforce with orange color
+        ax.plot(time, downforce, label='Downforce', color='orange')
+
+        # Plot efficiency with purple color
+        ax.plot(time, efficiency, label='Aerodynamic Efficiency', color='purple')
+
+        ax.set_title(f'Downforce and Aerodynamic Efficiency for {case_name}')
+        ax.legend(loc='upper right')  # Keep the legend in the upper right
+
+        plt.grid(True)
+        plt.savefig(os.path.join(case_name, f'downforce_efficiency_plot_{case_name}.png'))  # Save plot
         plt.close()
 
 if __name__ == "__main__":
@@ -107,4 +126,6 @@ if __name__ == "__main__":
         case_dir = os.path.join(current_directory, case)
         time, lift, drag, moment = DataExtractor.extract_lift_drag(case_dir)
         if time is not None:
-            GraphPlotter.plot_lift_drag(time, lift, drag, moment, case)
+            downforce, efficiency = DataExtractor.calculate_downforce_and_efficiency(lift, drag)
+            GraphPlotter.plot_lift_drag_moment(time, lift, drag, moment, case)
+            GraphPlotter.plot_downforce_efficiency(time, downforce, efficiency, case)
