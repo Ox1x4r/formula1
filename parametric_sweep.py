@@ -107,6 +107,50 @@ class GraphPlotter:
         plt.savefig(os.path.join(case_name, f'downforce_efficiency_plot_{case_name}.png'))  # Save plot
         plt.close()
 
+class PerformanceEvaluator:
+    @staticmethod
+    def calculate_scores(data):
+        scores = []
+
+        # Define weights for each criterion
+        weights = {
+            'lift': 0.3,
+            'drag': 0.3,
+            'pitch_moment': 0.2,
+            'aerodynamic_efficiency': 0.2
+        }
+
+        # Check for NaN values in data
+        if np.isnan(data['lift']).any() or np.isnan(data['drag']).any() or np.isnan(data['pitch_moment']).any() or np.isnan(data['aerodynamic_efficiency']).any():
+            print("Invalid data for normalization. Skipping calculation.")
+            return None
+
+        # Normalize the data for each criterion
+        normalized_data = {
+            'lift': (data['lift'] - data['lift'].min()) / (data['lift'].max() - data['lift'].min()),
+            'drag': (data['drag'] - data['drag'].min()) / (data['drag'].max() - data['drag'].min()),
+            'pitch_moment': (data['pitch_moment'] - data['pitch_moment'].min()) / (data['pitch_moment'].max() - data['pitch_moment'].min()),
+            'aerodynamic_efficiency': (data['aerodynamic_efficiency'] - data['aerodynamic_efficiency'].min()) / (data['aerodynamic_efficiency'].max() - data['aerodynamic_efficiency'].min())
+        }
+
+        # Calculate overall score for each case
+        overall_scores = np.zeros(len(data['lift']))  # Initialize array to store overall scores
+        for criterion, weight in weights.items():
+            overall_scores += normalized_data[criterion] * weight
+
+        # Take the mean score of all time steps
+        mean_score = np.mean(overall_scores)
+        scores.append(mean_score)
+
+        return scores
+
+    @staticmethod
+    def rank_cases(case_directories, scores):
+        ranked_cases = sorted(zip(case_directories, scores), key=lambda x: x[1], reverse=True)
+        print("Ranked Case Studies:")
+        for i, (case, score) in enumerate(ranked_cases, start=1):
+            print(f"{i}. {case}: Score - {score}")
+
 if __name__ == "__main__":
     # Get the current directory where the Python script is located
     current_directory = os.path.dirname(os.path.abspath(__file__))
@@ -122,6 +166,7 @@ if __name__ == "__main__":
     simulation_runner.run()
 
     # Extract and plot lift/drag coefficients for each case
+    scores = []
     for case in case_directories:
         case_dir = os.path.join(current_directory, case)
         time, lift, drag, moment = DataExtractor.extract_lift_drag(case_dir)
@@ -129,3 +174,9 @@ if __name__ == "__main__":
             downforce, efficiency = DataExtractor.calculate_downforce_and_efficiency(lift, drag)
             GraphPlotter.plot_lift_drag_moment(time, lift, drag, moment, case)
             GraphPlotter.plot_downforce_efficiency(time, downforce, efficiency, case)
+            data = {'lift': lift, 'drag': drag, 'pitch_moment': moment, 'aerodynamic_efficiency': efficiency}
+            score = PerformanceEvaluator.calculate_scores(data)
+            scores.append(score)
+
+    # Rank cases based on scores
+    PerformanceEvaluator.rank_cases(case_directories, scores)
