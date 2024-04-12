@@ -4,6 +4,18 @@ from multiprocessing import Pool
 import numpy as np
 import matplotlib.pyplot as plt
 
+class SimulationCleaner:
+    @staticmethod
+    def clean_simulation():
+        # Get the current directory where the Python script is located
+        current_directory = os.path.dirname(os.path.abspath(__file__))
+
+        # Specify the path to the Allclean_script.py relative to the current directory
+        allclean_script_path = os.path.join(current_directory, "Allclean_script.py")
+
+        # Execute the Allclean_script.py using the relative path
+        subprocess.call(["python3", allclean_script_path])
+
 class SimulationRunner:
     def __init__(self, case_directories):
         self.case_directories = case_directories
@@ -165,6 +177,9 @@ class PerformanceEvaluator:
             print(f"{i}. {case}: Score - {score}")
 
 if __name__ == "__main__":
+    # Clean previous simulation outputs
+    SimulationCleaner.clean_simulation()
+
     # Get the current directory where the Python script is located
     current_directory = os.path.dirname(os.path.abspath(__file__))
 
