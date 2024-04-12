@@ -107,6 +107,19 @@ class GraphPlotter:
         plt.savefig(os.path.join(case_name, f'downforce_efficiency_plot_{case_name}.png'))  # Save plot
         plt.close()
 
+    @staticmethod
+    def plot_scatter_strip(time, force, force_name, case_name):
+        fig, ax = plt.subplots(figsize=(8, 6))
+
+        ax.scatter(time, force, color='blue', alpha=0.5)
+        ax.set_title(f'{force_name} Scatter Plot')
+        ax.set_xlabel('Time')
+        ax.set_ylabel(f'{force_name} Force (N)')
+
+        plt.grid(True)
+        plt.savefig(os.path.join(case_name, f'{force_name}_scatter_strip_{case_name}.png'))  # Save plot
+        plt.close()
+
 class PerformanceEvaluator:
     @staticmethod
     def calculate_scores(data):
@@ -174,6 +187,11 @@ if __name__ == "__main__":
             downforce, efficiency = DataExtractor.calculate_downforce_and_efficiency(lift, drag)
             GraphPlotter.plot_lift_drag_moment(time, lift, drag, moment, case)
             GraphPlotter.plot_downforce_efficiency(time, downforce, efficiency, case)
+            GraphPlotter.plot_scatter_strip(time, lift, 'Lift', case)
+            GraphPlotter.plot_scatter_strip(time, drag, 'Drag', case)
+            GraphPlotter.plot_scatter_strip(time, moment, 'Moment', case)
+            GraphPlotter.plot_scatter_strip(time, downforce, 'Downforce', case)
+            GraphPlotter.plot_scatter_strip(time, efficiency, 'Efficiency', case)
             data = {'lift': lift, 'drag': drag, 'pitch_moment': moment, 'aerodynamic_efficiency': efficiency}
             score = PerformanceEvaluator.calculate_scores(data)
             scores.append(score)
