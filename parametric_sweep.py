@@ -1,9 +1,9 @@
+# Import necessary libraries
 import os
 import subprocess
 from multiprocessing import Pool
 import numpy as np
 import matplotlib.pyplot as plt
-
 
 ### Reponsible for cleaning up simulation outputs. ###
 class SimulationCleaner:
@@ -189,6 +189,20 @@ class GraphPlotter:
         plt.savefig(save_path)
         plt.close()
 
+    # Plots bar chart for case scores comparison.
+    @staticmethod
+    def plot_scores_comparison(case_names, scores):
+        plt.figure(figsize=(10, 6))
+        flattened_scores = [score[0] for score in scores]  # Flatten the nested list
+        plt.bar(case_names, flattened_scores, color='skyblue')
+        plt.xlabel('Case Studies')
+        plt.ylabel('Scores')
+        plt.title('Comparison of Scores Across Cases')
+        plt.grid(True)
+        save_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'formula1', 'scores_comparison.png')
+        plt.savefig(save_path)
+        plt.close()
+
 ### Class that is responsible for evaluating performance metrics. ###
 class PerformanceEvaluator:
     @staticmethod
@@ -282,7 +296,8 @@ if __name__ == "__main__":
     # Rank cases based on scores
     PerformanceEvaluator.rank_cases(case_directories, scores)
 
-    # Plot lift, drag, and downforce comparisons
+    # Plot lift, drag, downforce, and scores comparisons
     GraphPlotter.plot_lift_comparison(time_data, lift_data, case_directories)
     GraphPlotter.plot_drag_comparison(time_data, drag_data, case_directories)
     GraphPlotter.plot_downforce_comparison(time_data, downforce_data, case_directories)
+    GraphPlotter.plot_scores_comparison(case_directories, scores)
