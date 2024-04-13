@@ -132,6 +132,48 @@ class GraphPlotter:
         plt.savefig(os.path.join(case_name, f'{force_name}_scatter_strip_{case_name}.png'))  # Save plot
         plt.close()
 
+    @staticmethod
+    def plot_lift_comparison(time_data, lift_data, case_names):
+        plt.figure(figsize=(10, 6))
+        for i, case in enumerate(case_names):
+            plt.plot(time_data[i], lift_data[i], label=case)
+        plt.xlabel('Time')
+        plt.ylabel('Lift Force (N)')
+        plt.title('Comparison of Lift Across Cases')
+        plt.legend()
+        plt.grid(True)
+        save_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'formula1', 'lift_comparison.png')
+        plt.savefig(save_path)
+        plt.close()
+
+    @staticmethod
+    def plot_drag_comparison(time_data, drag_data, case_names):
+        plt.figure(figsize=(10, 6))
+        for i, case in enumerate(case_names):
+            plt.plot(time_data[i], drag_data[i], label=case)
+        plt.xlabel('Time')
+        plt.ylabel('Drag Force (N)')
+        plt.title('Comparison of Drag Across Cases')
+        plt.legend()
+        plt.grid(True)
+        save_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'formula1', 'drag_comparison.png')
+        plt.savefig(save_path)
+        plt.close()
+
+    @staticmethod
+    def plot_downforce_comparison(time_data, downforce_data, case_names):
+        plt.figure(figsize=(10, 6))
+        for i, case in enumerate(case_names):
+            plt.plot(time_data[i], downforce_data[i], label=case)
+        plt.xlabel('Time')
+        plt.ylabel('Downforce (N)')
+        plt.title('Comparison of Downforce Across Cases')
+        plt.legend()
+        plt.grid(True)
+        save_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'formula1', 'downforce_comparison.png')
+        plt.savefig(save_path)
+        plt.close()
+
 class PerformanceEvaluator:
     @staticmethod
     def calculate_scores(data):
@@ -195,6 +237,10 @@ if __name__ == "__main__":
 
     # Extract and plot lift/drag coefficients for each case
     scores = []
+    lift_data = []
+    drag_data = []
+    downforce_data = []
+    time_data = []
     for case in case_directories:
         case_dir = os.path.join(current_directory, case)
         time, lift, drag, moment = DataExtractor.extract_lift_drag(case_dir)
@@ -207,9 +253,18 @@ if __name__ == "__main__":
             GraphPlotter.plot_scatter_strip(time, moment, 'Moment', case)
             GraphPlotter.plot_scatter_strip(time, downforce, 'Downforce', case)
             GraphPlotter.plot_scatter_strip(time, efficiency, 'Efficiency', case)
+            lift_data.append(lift)
+            drag_data.append(drag)
+            downforce_data.append(downforce)
+            time_data.append(time)
             data = {'lift': lift, 'drag': drag, 'pitch_moment': moment, 'aerodynamic_efficiency': efficiency}
             score = PerformanceEvaluator.calculate_scores(data)
             scores.append(score)
 
     # Rank cases based on scores
     PerformanceEvaluator.rank_cases(case_directories, scores)
+
+    # Plot lift, drag, and downforce comparisons
+    GraphPlotter.plot_lift_comparison(time_data, lift_data, case_directories)
+    GraphPlotter.plot_drag_comparison(time_data, drag_data, case_directories)
+    GraphPlotter.plot_downforce_comparison(time_data, downforce_data, case_directories)
