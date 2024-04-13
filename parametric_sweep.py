@@ -4,6 +4,8 @@ from multiprocessing import Pool
 import numpy as np
 import matplotlib.pyplot as plt
 
+
+### Reponsible for cleaning up simulation outputs. ###
 class SimulationCleaner:
     @staticmethod
     def clean_simulation():
@@ -16,10 +18,13 @@ class SimulationCleaner:
         # Execute the Allclean_script.py using the relative path
         subprocess.call(["python3", allclean_script_path])
 
+### Class that is responsible for running simulations in parallel. ###
 class SimulationRunner:
+    # Initializes the SimulationRunner with a list of case directories.
     def __init__(self, case_directories):
         self.case_directories = case_directories
 
+    # Runs simulations in parallel for all specified case directories.
     def run(self):
         with Pool(processes=len(self.case_directories)) as pool:
             pool.map(self._run_simulation, self.case_directories)
@@ -30,7 +35,9 @@ class SimulationRunner:
         subprocess.call(["bash", "./Allrun"])  # Explicitly use bash to run the script
         os.chdir("..")
 
+### Class that is responsible for extracting data from simulation results. ###
 class DataExtractor:
+    # Extracts lift, drag, and moment data from the simulation results.
     @staticmethod
     def extract_lift_drag(case_dir):
         file_path = os.path.join(case_dir, "postProcessing", "forceCoeffs1", "0", "coefficient.dat")
@@ -69,13 +76,16 @@ class DataExtractor:
 
         return time_selected, lift_force, drag_force, pitch_moment_force
 
+    # Calculates downforce and aerodynamic efficiency.
     @staticmethod
     def calculate_downforce_and_efficiency(lift, drag):
         downforce = -lift  # Negative lift represents downforce
         efficiency = lift / drag
         return downforce, efficiency
 
+### Class that is responsible for plotting simulation data. ###
 class GraphPlotter:
+    # Plots lift, drag, and moment forces.
     @staticmethod
     def plot_lift_drag_moment(time, lift, drag, moment, case_name):
         fig, ax = plt.subplots(figsize=(6, 5))
@@ -99,6 +109,7 @@ class GraphPlotter:
         plt.savefig(os.path.join(case_name, f'lift_drag_moment_plot_{case_name}.png'))  # Save plot
         plt.close()
 
+    # Plots downforce and efficiency.
     @staticmethod
     def plot_downforce_efficiency(time, downforce, efficiency, case_name):
         fig, ax = plt.subplots(figsize=(6, 5))
@@ -119,6 +130,7 @@ class GraphPlotter:
         plt.savefig(os.path.join(case_name, f'downforce_efficiency_plot_{case_name}.png'))  # Save plot
         plt.close()
 
+    # Plots scatter strips for force data.
     @staticmethod
     def plot_scatter_strip(time, force, force_name, case_name):
         fig, ax = plt.subplots(figsize=(8, 6))
@@ -132,6 +144,7 @@ class GraphPlotter:
         plt.savefig(os.path.join(case_name, f'{force_name}_scatter_strip_{case_name}.png'))  # Save plot
         plt.close()
 
+    # Plots lift force for case comparison.
     @staticmethod
     def plot_lift_comparison(time_data, lift_data, case_names):
         plt.figure(figsize=(10, 6))
@@ -146,6 +159,7 @@ class GraphPlotter:
         plt.savefig(save_path)
         plt.close()
 
+    # Plots drag force for case comparison.
     @staticmethod
     def plot_drag_comparison(time_data, drag_data, case_names):
         plt.figure(figsize=(10, 6))
@@ -160,6 +174,7 @@ class GraphPlotter:
         plt.savefig(save_path)
         plt.close()
 
+    # Plots downforce for case comparison.
     @staticmethod
     def plot_downforce_comparison(time_data, downforce_data, case_names):
         plt.figure(figsize=(10, 6))
@@ -174,8 +189,10 @@ class GraphPlotter:
         plt.savefig(save_path)
         plt.close()
 
+### Class that is responsible for evaluating performance metrics. ###
 class PerformanceEvaluator:
     @staticmethod
+    # Calculates scores based on given data.
     def calculate_scores(data):
         scores = []
 
@@ -211,6 +228,7 @@ class PerformanceEvaluator:
 
         return scores
 
+    # Ranks cases based on scores.
     @staticmethod
     def rank_cases(case_directories, scores):
         ranked_cases = sorted(zip(case_directories, scores), key=lambda x: x[1], reverse=True)
