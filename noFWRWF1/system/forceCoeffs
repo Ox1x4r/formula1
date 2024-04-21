@@ -25,8 +25,8 @@ forceCoeffs1
     CofR            (0.72 0 0);  // Axle midpoint on ground
     pitchAxis       (0 1 0);
     magUInf         20;
-    lRef            1.42;        // Wheelbase length
-    Aref            0.75;        // Estimated
+    lRef            3.6;        // Wheelbase length
+    Aref            2;        // Estimated
 }
 
 /*
