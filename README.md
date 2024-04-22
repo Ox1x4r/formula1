@@ -8,7 +8,7 @@
 
 ## Description
 
-The CFD simulation was built in openFOAM with the goal of creating an automated parametric sweep analysis of the aerodynamics of a Formula 1 vehicle and then ranking he best performing model.
+The CFD simulation was built in openFOAM with the goal of creating an automated parametric sweep analysis of the aerodynamics of a Formula 1 vehicle and then ranking the best performing model.
 
 ## Getting Started
 
